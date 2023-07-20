@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.robotcontroller.external.samples;
+package org.firstinspires.ftc.teamcode.drive.visualrecog;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -47,7 +47,7 @@ import org.firstinspires.ftc.vision.tfod.TfodProcessor;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list.
  */
 @TeleOp(name = "Concept: TensorFlow Object Detection Easy", group = "Concept")
-@Disabled
+
 public class ConceptTensorFlowObjectDetectionEasy extends LinearOpMode {
 
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
