@@ -36,13 +36,18 @@ public class Outtake {
     //SERVOURI CUPA:
 
     public void ridicaCupa(){
-        servoCupa1.setPosition(0.95);
-        servoCupa2.setPosition(1-0.95);
+        servoCupa1.setPosition(0.9);
+        servoCupa2.setPosition(1-0.9);
     }
 
     public void coboaraCupa(){
-        servoCupa1.setPosition(0.2);
-        servoCupa2.setPosition(1-0.2);
+        servoCupa1.setPosition(0.25);
+        servoCupa2.setPosition(1-0.25);
+    }
+
+    public void setCupa(double pos){
+        servoCupa1.setPosition(pos);
+        servoCupa2.setPosition(1 - pos);
     }
 
     public void inchideBat(){
@@ -117,6 +122,10 @@ public class Outtake {
 
     public int getPosition(){
         return motorGlisiera.getCurrentPosition();
+    }
+
+    public double getServoPos(){
+        return servoCupa1.getPosition();
     }
 }
 

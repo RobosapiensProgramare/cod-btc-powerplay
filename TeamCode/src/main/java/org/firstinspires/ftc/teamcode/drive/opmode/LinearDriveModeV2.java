@@ -15,18 +15,18 @@ import java.util.ArrayList;
 //import org.firstinspires.ftc.teamcode.drive.subsystems.Odometrie;
 
 @TeleOp(group = "driver")
-public class LinearDriveMode extends LinearOpMode {
+public class LinearDriveModeV2 extends LinearOpMode {
     private Robot robot = null;
     public final static int ZERO = 5, MEDIUM = -700, TALL = -1250;
     public final static double DOWN_MULTIPLIER = 0.7;
-    boolean outtakeEncodersDown = false;
+    boolean outtakeEncodersDown = false, intakeEncodersDown = false;
     public boolean hasReached = true, isReadyForTransfer = false;
 
     public int hDess = 8;
 
     public int levelCon = 4;
 
-    public int level = 0;
+    public double outtakeServoPosition, intakeServoPosition;
     ArrayList<Pair<Integer, Integer>> pozitiiStack = new ArrayList<>(5);
 
     public double calculateThrottle(float x) {
@@ -40,45 +40,17 @@ public class LinearDriveMode extends LinearOpMode {
         robot.intake.servobaza1.setPosition(1 - pos);
     }
 
-    public void extindeLevel0() {
-        robot.intake.servoincheietura.setPosition(0.75); //0.3
-        sleep(300);
-        setServosBaza(0);
-        sleep(300);
-        robot.intake.servoClesteRot.setPosition(0.4);
-//        robot.intake.servoclestein.setPosition(0.7);
-    }
-
-    public void extindeLevel1() {
-        robot.intake.servoincheietura.setPosition(0.67); //0.3
-        sleep(300);
-        setServosBaza(0.09);
-        sleep(300);
-        robot.intake.servoClesteRot.setPosition(0.32);
-//        robot.intake.servoclestein.setPosition(0.7);
-    }
-
-    public void extindeLevel2() {
-        robot.intake.servoincheietura.setPosition(0.63); //0.3
-        sleep(300);
-        setServosBaza(0.1);
-        sleep(300);
-        robot.intake.servoClesteRot.setPosition(0.25);
-//        robot.intake.servoclestein.setPosition(0.7);
-    }
-
-
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry.addData(">", "Initializing...");
         telemetry.update();
 
         robot = new Robot(hardwareMap);
-        pozitiiStack.add(new Pair<>(11, 17));
-        pozitiiStack.add(new Pair<>(14, 13));
-        pozitiiStack.add(new Pair<>(16, 14));
-        pozitiiStack.add(new Pair<>(19, 16));
-        pozitiiStack.add(new Pair<>(22, 16));
+        pozitiiStack.add(new Pair<>(15, 18));
+        pozitiiStack.add(new Pair<>(17, 18));
+        pozitiiStack.add(new Pair<>(19, 18));
+        pozitiiStack.add(new Pair<>(21, 18));
+        pozitiiStack.add(new Pair<>(23, 17));
 
         while (robot.isInitialize() && opModeIsActive()) {
             idle();
@@ -86,6 +58,10 @@ public class LinearDriveMode extends LinearOpMode {
 
         telemetry.addData(">", "Initialized");
         telemetry.update();
+
+        robot.intake.intakeToOuttake();
+        robot.outtake.coboaraCupa();
+
         waitForStart();
         if (isStopRequested()) return;
 
@@ -153,101 +129,138 @@ public class LinearDriveMode extends LinearOpMode {
                 }
             }
 
-            /** INTAKE **/
-
-//            if(gamepad2.square) {
-//                robot.intake.manualLevel(-835);
-//
-//                sleep(300);
-//                robot.outtake.coboaraCupa();
-//                robot.outtake.deschideBat();
-//
-//            }
-
-            /** asta e gen sa misti glisierele manual **/
-            if (robot.intake.motorGlisieraOriz.getCurrentPosition() < 0 && robot.intake.motorGlisieraOriz.getCurrentPosition() > -1240) {
-                if (gamepad2.left_trigger > 0.1) {
-                    robot.intake.manualTarget = robot.intake.motorGlisieraOriz.getCurrentPosition() + calculateThrottle(gamepad2.left_trigger * 12);
-                    robot.intake.manualTarget--;
-                    robot.intake.manualLevel(robot.intake.manualTarget);
-                }
-
-                if (gamepad2.right_trigger > 0.1) {
-                    robot.intake.manualTarget = robot.intake.motorGlisieraOriz.getCurrentPosition() - calculateThrottle(gamepad2.right_trigger * 12);
-                    robot.intake.manualTarget++;
-                    robot.intake.manualLevel(robot.intake.manualTarget);
-                }
+            if(gamepad1.dpad_up)
+            {
+                outtakeServoPosition = outtakeServoPosition + 0.05;
+                robot.outtake.setCupa(outtakeServoPosition);
+            }
+            if(gamepad1.dpad_down)
+            {
+                outtakeServoPosition = outtakeServoPosition - 0.05;
+                robot.outtake.setCupa(outtakeServoPosition);
             }
 
 
-            if (gamepad2.circle) {
-                sleep(100);
-                robot.intake.servobaza2.setPosition(0.6);
-                robot.intake.servobaza1.setPosition(1 - 0.6);
-                robot.intake.servoincheietura.setPosition(1);
-                sleep(600);
-                robot.intake.servoClesteRot.setPosition(0.4);
+            //servoBaza1 0.7, servoBaza2 0.3
 
-                robot.intake.manualLevel(-700);
-                sleep(500);
+
+
+
+            /** INTAKE **/
+
+            if(gamepad2.left_stick_button && gamepad2.right_stick_button){
+                robot.intake.setPower(0);
+                intakeEncodersDown = true;
+            }
+
+            if(intakeEncodersDown){
+                if (gamepad2.left_trigger >= 0.1) {
+                    robot.intake.setPower(gamepad2.left_trigger);
+                } else if (gamepad2.right_trigger >= 0.1) {
+                    robot.intake.setPower(-gamepad2.right_trigger);
+                } else {
+                    robot.intake.setPower(0);
+                }
+            }
+            else{
+                if (gamepad2.left_trigger > 0.1) {
+                    //if (robot.outtake.getPosition() >= ZERO) {
+                    robot.intake.manualTarget = robot.intake.motorGlisieraOriz.getCurrentPosition() + calculateThrottle(gamepad2.left_trigger * 12);
+                    robot.intake.manualTarget++;
+                    robot.intake.manualLevel(robot.intake.manualTarget);
+                    //}
+                }
+
+                if (gamepad2.right_trigger > 0.1) {
+                    // if (robot.outtake.getPosition() < TALL) {
+                    robot.intake.manualTarget = robot.intake.motorGlisieraOriz.getCurrentPosition() - calculateThrottle(gamepad2.right_trigger * 12);
+                    robot.intake.manualTarget--;
+                    robot.intake.manualLevel(robot.intake.manualTarget);
+                    //}
+                }
+            }
+
+            if(gamepad2.touchpad){
+                robot.intake.manualLevel(5);
+            }
+
+            if (gamepad2.circle) {
+                robot.intake.intakeToOuttake();
                 isReadyForTransfer = true;
             }
 
             if (gamepad2.right_bumper) {
                 robot.intake.servoclestein.setPosition(0.7);
-                sleep(500);
-                robot.intake.setHeight(28);
             }
-            if (isReadyForTransfer) {
-                if (gamepad2.left_bumper) {
-                    robot.intake.servoincheietura.setPosition(0.4);
-                    sleep(600);
-                    robot.intake.servoclestein.setPosition(0.3);
-                    robot.intake.manualLevel(-800);
-                }
-            } else {
-                if (gamepad2.left_bumper)
-                    robot.intake.servoclestein.setPosition(0.3);
+
+            if(gamepad2.left_bumper){
+                robot.intake.servoclestein.setPosition(0.3);
             }
+
             if (gamepad2.triangle) {
                 robot.intake.distCon = pozitiiStack.get(levelCon).second;
                 robot.intake.setHeight(pozitiiStack.get(levelCon).first);
                 robot.intake.desfaCleste();
                 isReadyForTransfer = false;
             }
-            if (gamepad2.cross) {
+
+            if(gamepad2.cross){
                 hasReached = false;
             }
 
-            if (!hasReached) {
+//            if(gamepad2.dpad_right){
+//                robot.intake.servoclestein.setPosition(0.7);
+//                sleep(200);
+//                robot.intake.setHeight(28);
+//                robot.intake.servobaza2.setPosition(0.6);
+//                robot.intake.servobaza1.setPosition(1 - 0.6);
+//                robot.intake.servoincheietura.setPosition(1);
+//                sleep(300);
+//                robot.intake.servoClesteRot.setPosition(0.4);
+//
+//                robot.intake.manualLevel(-700);
+//                sleep(200);
+//                isReadyForTransfer = true;
+//            }
+
+            if(!hasReached){
                 if (robot.intake.senzorDistanta.getDistance(DistanceUnit.CM) >= 5) {
-                    robot.intake.motorGlisieraOriz.setPower(-0.75);
-                    hasReached = false;
-                } else if (robot.intake.senzorDistanta.getDistance(DistanceUnit.CM) < 5) {
-                    robot.intake.motorGlisieraOriz.setPower(0);
+                    robot.intake.manualTarget = robot.intake.motorGlisieraOriz.getCurrentPosition() - calculateThrottle(12);
+                    robot.intake.manualTarget--;
+                    robot.intake.manualLevel(robot.intake.manualTarget);
+                }else {
+                    robot.intake.manualLevel(robot.intake.motorGlisieraOriz.getCurrentPosition());
                     hasReached = true;
                 }
-                if (gamepad2.left_trigger == 1-0.2 && gamepad2.right_trigger == 1 - 0.2) {
-                    robot.intake.motorGlisieraOriz.setPower(0);
-//                    gamepad2.left_stick_button = false;
-//                    gamepad2.right_stick_button = false;
-                    hasReached = true;
-                }
+            }
+
+            if(gamepad2.square){
+                robot.intake.motorGlisieraOriz.setPower(0);
+                hasReached = true;
+            }
+
+            if(gamepad2.dpad_left)
+            {
+                intakeServoPosition = intakeServoPosition + 0.05;
+                robot.intake.servoClesteRot.setPosition(intakeServoPosition);
+            }
+            if(gamepad2.dpad_right)
+            {
+                intakeServoPosition = intakeServoPosition - 0.05;
+                robot.intake.servoClesteRot.setPosition(intakeServoPosition);
             }
 
 
 
 
-
-            if (levelCon > 4) levelCon = 4;
-            if (levelCon < 0) levelCon = 0;
-
             if (gamepad2.dpad_up) {
                 levelCon++;
+                if (levelCon > 4) levelCon = 4;
                 sleep(100);
             }
             if (gamepad2.dpad_down) {
                 levelCon--;
+                if (levelCon < 0) levelCon = 0;
                 sleep(100);
             }
 
@@ -257,36 +270,12 @@ public class LinearDriveMode extends LinearOpMode {
             //con2 - hdes - 14 cand apuca conu, 25 ca sa se ridice si distcon - 13
             //con1 - hdes - 11 cand apuca conu, 25 ca sa se ridice si distcon - 17
 
-//            switch (levelCon){
-//                case 5: {
-//                    hDess = 21;
-//                    robot.intake.DistCon = 16;
-//                    break;
-//                }
-//                case 4: {
-//                    hDess = 19;
-//                    robot.intake.DistCon = 16;
-//                    break;
-//                }
-//                case 3: {
-//                    hDess = 16;
-//                    robot.intake.DistCon = 14;
-//                    break;
-//                }
-//                case 2: {
-//                    hDess = 14;
-//                    robot.intake.DistCon = 13;
-//                    break;
-//                }
-//                case 1: {
-//                    hDess = 11;
-//                    robot.intake.DistCon = 17;
-//                    break;
-//                }
-//            }
+            /** DRIVE **/
 
-            //Drive
             robot.drive.setDrivePower(new Pose2d(calculateThrottle((-gamepad1.left_stick_y)), calculateThrottle((float) (-gamepad1.left_stick_x)), calculateThrottle((float) (-gamepad1.right_stick_x))));
+
+            /** TELEMETRY **/
+
             telemetry.addData("levelCon: ", levelCon + 1);
             telemetry.addData("?hasreached: ", hasReached);
             telemetry.addData("MOTORORIZTICKS: ", robot.intake.motorGlisieraOriz.getCurrentPosition());
@@ -298,6 +287,7 @@ public class LinearDriveMode extends LinearOpMode {
             telemetry.addData("servobazapos: ", robot.intake.servobaza1.getPosition());
             telemetry.addData("servoincheieturapos: ", robot.intake.servoClesteRot.getPosition());
             telemetry.addData("servorotpos: ", robot.intake.servoincheietura.getPosition());
+            telemetry.addData("servoCupaPos:", robot.outtake.getServoPos());
             telemetry.addData("Hdess: ", hDess);
             telemetry.addData("FirstAng: ", robot.intake.FirstAng);
             telemetry.addData("MidAng:  ", robot.intake.MidAng);
