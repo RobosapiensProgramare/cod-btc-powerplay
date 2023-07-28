@@ -17,10 +17,10 @@ import java.util.ArrayList;
 @TeleOp(group = "driver")
 public class LinearDriveModeV2 extends LinearOpMode {
     private Robot robot = null;
-    public final static int ZERO = 5, MEDIUM = -700, TALL = -1250;
+    public final static int ZERO = 5, MEDIUM = 700, TALL = 1250;
     public final static double DOWN_MULTIPLIER = 0.7;
     boolean outtakeEncodersDown = false, intakeEncodersDown = false;
-    public boolean hasReached = true, isReadyForTransfer = false;
+    public boolean hasReached = true, isReadyForTransfer = false, isStart = true;
 
     public int hDess = 8;
 
@@ -60,13 +60,15 @@ public class LinearDriveModeV2 extends LinearOpMode {
         telemetry.update();
 
         robot.intake.intakeToOuttake();
+        sleep(500);
+        robot.intake.setServoBaza(0.4);
         robot.outtake.coboaraCupa();
+
 
         waitForStart();
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-
             /** OUTTAKE **/
 
             double poz = robot.intake.motorGlisieraOriz.getCurrentPosition();
@@ -114,16 +116,21 @@ public class LinearDriveModeV2 extends LinearOpMode {
             } else {/** DACA MERG ENCODERELE **/
                 if (gamepad1.right_trigger > 0.1) {
                     //if (robot.outtake.getPosition() >= ZERO) {
-                    robot.outtake.manualTarget = robot.outtake.motorGlisiera.getCurrentPosition() + calculateThrottle(gamepad1.right_trigger * 12);
+                    robot.outtake.manualTarget = robot.outtake.motorGlisiera1.getCurrentPosition() + calculateThrottle(gamepad1.right_trigger * 12);
                     robot.outtake.manualTarget++;
+                    if(robot.outtake.manualTarget > TALL) {
+                        robot.outtake.manualTarget = TALL;
+                    }
                     robot.outtake.manualLevel(robot.outtake.manualTarget);
-                    //}
                 }
 
                 if (gamepad1.left_trigger > 0.1) {
                     // if (robot.outtake.getPosition() < TALL) {
-                    robot.outtake.manualTarget = robot.outtake.motorGlisiera.getCurrentPosition() - calculateThrottle(gamepad1.left_trigger * 12);
+                    robot.outtake.manualTarget = robot.outtake.motorGlisiera1.getCurrentPosition() - calculateThrottle(gamepad1.left_trigger * 12);
                     robot.outtake.manualTarget--;
+                    if(robot.outtake.manualTarget < ZERO){
+                        robot.outtake.manualTarget = ZERO;
+                    }
                     robot.outtake.manualLevel(robot.outtake.manualTarget);
                     //}
                 }
@@ -167,6 +174,9 @@ public class LinearDriveModeV2 extends LinearOpMode {
                     //if (robot.outtake.getPosition() >= ZERO) {
                     robot.intake.manualTarget = robot.intake.motorGlisieraOriz.getCurrentPosition() + calculateThrottle(gamepad2.left_trigger * 12);
                     robot.intake.manualTarget++;
+                    if(robot.intake.manualTarget > 0){
+                        robot.intake.manualTarget = 0;
+                    }
                     robot.intake.manualLevel(robot.intake.manualTarget);
                     //}
                 }
@@ -175,6 +185,9 @@ public class LinearDriveModeV2 extends LinearOpMode {
                     // if (robot.outtake.getPosition() < TALL) {
                     robot.intake.manualTarget = robot.intake.motorGlisieraOriz.getCurrentPosition() - calculateThrottle(gamepad2.right_trigger * 12);
                     robot.intake.manualTarget--;
+                    if(robot.intake.manualTarget < -800){
+                        robot.intake.manualTarget = -800;
+                    }
                     robot.intake.manualLevel(robot.intake.manualTarget);
                     //}
                 }
@@ -186,15 +199,21 @@ public class LinearDriveModeV2 extends LinearOpMode {
 
             if (gamepad2.circle) {
                 robot.intake.intakeToOuttake();
+                robot.intake.manualLevel(-180);
                 isReadyForTransfer = true;
             }
 
             if (gamepad2.right_bumper) {
-                robot.intake.servoclestein.setPosition(0.7);
+                robot.intake.strangeCleste();
             }
 
             if(gamepad2.left_bumper){
-                robot.intake.servoclestein.setPosition(0.3);
+                robot.intake.desfaCleste();
+                if(isReadyForTransfer)
+                {
+                    sleep(250);
+                    robot.intake.servoClesteRot.setPosition(0.3);
+                }
             }
 
             if (gamepad2.triangle) {
@@ -227,6 +246,9 @@ public class LinearDriveModeV2 extends LinearOpMode {
                 if (robot.intake.senzorDistanta.getDistance(DistanceUnit.CM) >= 5) {
                     robot.intake.manualTarget = robot.intake.motorGlisieraOriz.getCurrentPosition() - calculateThrottle(12);
                     robot.intake.manualTarget--;
+                    if(robot.intake.manualTarget < -800){
+                        robot.intake.manualTarget = -800;
+                    }
                     robot.intake.manualLevel(robot.intake.manualTarget);
                 }else {
                     robot.intake.manualLevel(robot.intake.motorGlisieraOriz.getCurrentPosition());
@@ -281,7 +303,7 @@ public class LinearDriveModeV2 extends LinearOpMode {
             telemetry.addData("MOTORORIZTICKS: ", robot.intake.motorGlisieraOriz.getCurrentPosition());
             telemetry.addData("MOTORORIZTARGET: ", robot.intake.motorGlisieraOriz.getCurrentPosition());
             telemetry.addData("MOTORglisiera2 ", robot.outtake.motorGlisiera2.getCurrentPosition());
-            telemetry.addData("MOTORglisiera1 ", robot.outtake.motorGlisiera.getCurrentPosition());
+            telemetry.addData("MOTORglisiera1 ", robot.outtake.motorGlisiera1.getCurrentPosition());
             telemetry.addData("MOTORglisiera1Targe ", robot.outtake.motorGlisiera2.getTargetPosition());
             telemetry.addData("getposition", robot.outtake.getPosition());
             telemetry.addData("servobazapos: ", robot.intake.servobaza1.getPosition());

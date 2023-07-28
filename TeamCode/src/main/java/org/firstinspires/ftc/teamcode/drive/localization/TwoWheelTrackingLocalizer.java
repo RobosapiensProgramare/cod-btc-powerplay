@@ -18,8 +18,8 @@ public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
     public static double WHEEL_RADIUS = 0.98; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
-    public static double PARALLEL_X = 0.78; // X is the forward and back direction
-    public static double PARALLEL_Y = -7.08; // Y is the strafe direction
+    public static double PARALLEL_X = 0; // X is the forward and back direction
+    public static double PARALLEL_Y = -6.5; // Y is the strafe direction
 
     public static double PERPENDICULAR_X = -5.51; // X is the forward and back direction
     public static double PERPENDICULAR_Y = 0; // Y is the strafe direction
@@ -28,7 +28,7 @@ public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
 
     private BNO055IMU imu;
 
-    private static double X_MULTIPLIER = 1;
+    private static double X_MULTIPLIER = 0.97;
     private static double Y_MULTIPLIER = 1;
 
     public TwoWheelTrackingLocalizer(HardwareMap hardwareMap, SampleMecanumDrive drive) {

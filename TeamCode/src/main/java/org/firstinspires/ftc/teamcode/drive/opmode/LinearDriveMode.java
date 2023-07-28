@@ -138,7 +138,7 @@ public class LinearDriveMode extends LinearOpMode {
             } else {/** DACA MERG ENCODERELE **/
                 if (gamepad1.right_trigger > 0.1) {
                     //if (robot.outtake.getPosition() >= ZERO) {
-                    robot.outtake.manualTarget = robot.outtake.motorGlisiera.getCurrentPosition() + calculateThrottle(gamepad1.right_trigger * 12);
+                    robot.outtake.manualTarget = robot.outtake.motorGlisiera1.getCurrentPosition() + calculateThrottle(gamepad1.right_trigger * 12);
                     robot.outtake.manualTarget++;
                     robot.outtake.manualLevel(robot.outtake.manualTarget);
                     //}
@@ -146,7 +146,7 @@ public class LinearDriveMode extends LinearOpMode {
 
                 if (gamepad1.left_trigger > 0.1) {
                     // if (robot.outtake.getPosition() < TALL) {
-                    robot.outtake.manualTarget = robot.outtake.motorGlisiera.getCurrentPosition() - calculateThrottle(gamepad1.left_trigger * 12);
+                    robot.outtake.manualTarget = robot.outtake.motorGlisiera1.getCurrentPosition() - calculateThrottle(gamepad1.left_trigger * 12);
                     robot.outtake.manualTarget--;
                     robot.outtake.manualLevel(robot.outtake.manualTarget);
                     //}
@@ -194,7 +194,7 @@ public class LinearDriveMode extends LinearOpMode {
             }
 
             if (gamepad2.right_bumper) {
-                robot.intake.servoclestein.setPosition(0.7);
+                robot.intake.servoclesteIn.setPosition(0.7);
                 sleep(500);
                 robot.intake.setHeight(28);
             }
@@ -202,12 +202,12 @@ public class LinearDriveMode extends LinearOpMode {
                 if (gamepad2.left_bumper) {
                     robot.intake.servoincheietura.setPosition(0.4);
                     sleep(600);
-                    robot.intake.servoclestein.setPosition(0.3);
+                    robot.intake.servoclesteIn.setPosition(0.3);
                     robot.intake.manualLevel(-800);
                 }
             } else {
                 if (gamepad2.left_bumper)
-                    robot.intake.servoclestein.setPosition(0.3);
+                    robot.intake.servoclesteIn.setPosition(0.3);
             }
             if (gamepad2.triangle) {
                 robot.intake.distCon = pozitiiStack.get(levelCon).second;
@@ -292,7 +292,7 @@ public class LinearDriveMode extends LinearOpMode {
             telemetry.addData("MOTORORIZTICKS: ", robot.intake.motorGlisieraOriz.getCurrentPosition());
             telemetry.addData("MOTORORIZTARGET: ", robot.intake.motorGlisieraOriz.getCurrentPosition());
             telemetry.addData("MOTORglisiera2 ", robot.outtake.motorGlisiera2.getCurrentPosition());
-            telemetry.addData("MOTORglisiera1 ", robot.outtake.motorGlisiera.getCurrentPosition());
+            telemetry.addData("MOTORglisiera1 ", robot.outtake.motorGlisiera1.getCurrentPosition());
             telemetry.addData("MOTORglisiera1Targe ", robot.outtake.motorGlisiera2.getTargetPosition());
             telemetry.addData("getposition", robot.outtake.getPosition());
             telemetry.addData("servobazapos: ", robot.intake.servobaza1.getPosition());

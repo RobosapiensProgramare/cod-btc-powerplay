@@ -20,7 +20,7 @@ public class Intake {
     public DistanceSensor senzorDistanta;
     public Servo servobaza1;
     public Servo servobaza2;
-    public Servo servoclestein;
+    public Servo servoclesteIn;
     public Servo servoincheietura;
     public Servo servoClesteRot;
 
@@ -32,7 +32,7 @@ public class Intake {
         motorGlisieraOriz = hardwareMap.dcMotor.get("motorGlisieraOriz");
         servobaza1 = hardwareMap.servo.get("servoBaza1");
         servobaza2 = hardwareMap.servo.get("servoBaza2");
-        servoclestein = hardwareMap.servo.get("servoClesteIn");
+        servoclesteIn = hardwareMap.servo.get("servoClesteIn");
         servoClesteRot = hardwareMap.servo.get("servoClesteRot");
         servoincheietura = hardwareMap.servo.get("servoIncheietura");
         senzorDistanta = hardwareMap.get(DistanceSensor.class, "senzorDistanta");
@@ -44,11 +44,11 @@ public class Intake {
     }
 
     public void desfaCleste() {
-        servoclestein.setPosition(0.3);
+        servoclesteIn.setPosition(0.3);
     }
 
     public void strangeCleste() {
-        servoclestein.setPosition(0.4);
+        servoclesteIn.setPosition(0.7);
     }
 
     public void setPower(double power){
@@ -123,22 +123,25 @@ public class Intake {
         servoincheietura.setPosition(0.54 - ((180-FinalAng) /180));
     }
 
+    public void setServoBaza(double pos){
+        servobaza2.setPosition(pos);
+        servobaza1.setPosition(1-pos);
+    }
+
     public void intakeToOuttake(){
         try {
             sleep(100);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        servobaza2.setPosition(0.52);
-        servobaza1.setPosition(1 - 0.52);
+        setServoBaza(0.52);
         servoincheietura.setPosition(0);
         try {
-            sleep(600);
+            sleep(100);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        servoClesteRot.setPosition(0.5);
-        manualLevel(-180);
+        servoClesteRot.setPosition(0.475);
     }
 
 }

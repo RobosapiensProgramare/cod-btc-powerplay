@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class Outtake {
     private static final double POWER = 1;
-    public DcMotor motorGlisiera;
+    public DcMotor motorGlisiera1;
     public DcMotor motorGlisiera2;
 
     private Servo servoCupa1, servoCupa2, servoBat;
@@ -16,7 +16,7 @@ public class Outtake {
     public double manualTarget = 0;
 
     public Outtake(HardwareMap hardwareMap){
-        motorGlisiera = hardwareMap.dcMotor.get("motorGlisiera");
+        motorGlisiera1 = hardwareMap.dcMotor.get("motorGlisiera");
         motorGlisiera2 = hardwareMap.dcMotor.get("motorGlisiera2");
 
         servoCupa1 = hardwareMap.servo.get("servoCupa1");
@@ -24,9 +24,9 @@ public class Outtake {
         servoBat = hardwareMap.servo.get("servoBat");
 
         //Motor initialization
-        motorGlisiera.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorGlisiera.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorGlisiera.setDirection(DcMotorSimple.Direction.FORWARD);
+        motorGlisiera1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorGlisiera1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorGlisiera1.setDirection(DcMotorSimple.Direction.FORWARD);
 
         motorGlisiera2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorGlisiera2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -41,8 +41,8 @@ public class Outtake {
     }
 
     public void coboaraCupa(){
-        servoCupa1.setPosition(0.25);
-        servoCupa2.setPosition(1-0.25);
+        servoCupa1.setPosition(0.3);
+        servoCupa2.setPosition(1-0.3);
     }
 
     public void setCupa(double pos){
@@ -69,51 +69,51 @@ public class Outtake {
     //MOTOARE GLISIERA:
 
     public void setPower(double power){
-        motorGlisiera.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorGlisiera.setPower(power);
+        motorGlisiera1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorGlisiera1.setPower(power);
 
         motorGlisiera2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorGlisiera2.setPower(power);
     }
 
     public void manualLevel(double manualTarget) {
-        motorGlisiera.setTargetPosition((int) manualTarget);
-        motorGlisiera.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorGlisiera1.setTargetPosition((int) manualTarget);
+        motorGlisiera1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         motorGlisiera2.setTargetPosition((int) manualTarget);
         motorGlisiera2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        if(motorGlisiera.getCurrentPosition() > manualTarget && motorGlisiera2.getCurrentPosition() > manualTarget)
+        if(motorGlisiera1.getCurrentPosition() > manualTarget && motorGlisiera2.getCurrentPosition() > manualTarget)
         {
-            motorGlisiera.setPower(-POWER);
+            motorGlisiera1.setPower(-POWER);
             motorGlisiera2.setPower(-POWER);
         }
         else{
-            motorGlisiera.setPower(POWER);
+            motorGlisiera1.setPower(POWER);
             motorGlisiera2.setPower(POWER);
         }
     }
 
     public void setLevel(int target, double multiplier){
-        motorGlisiera.setTargetPosition(-target);
-        motorGlisiera.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorGlisiera1.setTargetPosition(target);
+        motorGlisiera1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        motorGlisiera2.setTargetPosition(-target);
+        motorGlisiera2.setTargetPosition(target);
         motorGlisiera2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        if(motorGlisiera.getCurrentPosition() > -target && motorGlisiera2.getCurrentPosition() > -target) {
-            motorGlisiera.setPower(-POWER);
+        if(motorGlisiera1.getCurrentPosition() > target && motorGlisiera2.getCurrentPosition() > target) {
+            motorGlisiera1.setPower(-POWER);
             motorGlisiera2.setPower(-POWER);
         }
         else
         {
-            motorGlisiera.setPower(POWER * multiplier);
+            motorGlisiera1.setPower(POWER * multiplier);
             motorGlisiera2.setPower(POWER * multiplier);
         }
     }
 
     public boolean isGoing(int target){
-        if (motorGlisiera.getCurrentPosition() < target + 20 && motorGlisiera.getCurrentPosition() > target - 20){
+        if (motorGlisiera1.getCurrentPosition() < target + 20 && motorGlisiera1.getCurrentPosition() > target - 20){
             return  false;
         }
         return true;
@@ -121,7 +121,7 @@ public class Outtake {
     }
 
     public int getPosition(){
-        return motorGlisiera.getCurrentPosition();
+        return motorGlisiera1.getCurrentPosition();
     }
 
     public double getServoPos(){
