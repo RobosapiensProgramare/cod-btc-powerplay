@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import static java.lang.Math.abs;
 import static java.lang.Thread.sleep;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -7,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
@@ -28,6 +30,13 @@ public class Intake {
     public double manualTarget = 0;
 
     public double HDes = 0;
+
+    public double calculateThrottle(float x) {
+        int sign = -1;
+        if (x > 0) sign = 1;
+        return sign * Math.pow(100 * (abs(x) / 100), 2);
+    }
+
     public Intake(HardwareMap hardwareMap){
         motorGlisieraOriz = hardwareMap.dcMotor.get("motorGlisieraOriz");
         servobaza1 = hardwareMap.servo.get("servoBaza1");
@@ -90,12 +99,15 @@ public class Intake {
 //    }
 
     public void autoExtend(){
-        if(senzorDistanta.getDistance(DistanceUnit.CM) >= 8){
-            motorGlisieraOriz.setPower(-0.75);
-        }
-        else{
-            motorGlisieraOriz.setPower(0);
-
+        if (senzorDistanta.getDistance(DistanceUnit.CM) >= 5) {
+            manualTarget = motorGlisieraOriz.getCurrentPosition() - calculateThrottle(12);
+            manualTarget--;
+            if(manualTarget < -800){
+                manualTarget = -800;
+            }
+            manualLevel(manualTarget);
+        }else {
+            manualLevel(motorGlisieraOriz.getCurrentPosition());
         }
     }
 
