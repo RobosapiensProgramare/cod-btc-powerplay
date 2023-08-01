@@ -141,7 +141,7 @@ public class Intake {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        servoClesteRot.setPosition(0.475);
+        servoClesteRot.setPosition(0.575);
     }
 
 }
