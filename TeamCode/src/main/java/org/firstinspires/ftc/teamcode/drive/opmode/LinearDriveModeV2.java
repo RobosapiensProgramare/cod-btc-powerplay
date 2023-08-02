@@ -76,7 +76,6 @@ public class LinearDriveModeV2 extends LinearOpMode {
             if (gamepad1.touchpad) {
                 robot.outtake.setLevel(ZERO, DOWN_MULTIPLIER);
             }
-
             if (gamepad1.square) {
                 robot.outtake.setLevel(MEDIUM, DOWN_MULTIPLIER);
             }

@@ -28,7 +28,7 @@ public class Intake {
 
     public boolean mergeMotor;
     public double manualTarget = 0;
-
+        //branch 2
     public double HDes = 0;
 
     public double calculateThrottle(float x) {
