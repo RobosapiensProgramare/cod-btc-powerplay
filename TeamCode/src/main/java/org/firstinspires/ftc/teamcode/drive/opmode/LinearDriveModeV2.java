@@ -199,7 +199,7 @@ public class LinearDriveModeV2 extends LinearOpMode {
 
             if (gamepad2.circle) {
                 robot.intake.intakeToOuttake();
-                robot.intake.manualLevel(-180);
+                robot.intake.manualLevel(-250);
                 isReadyForTransfer = true;
             }
 
