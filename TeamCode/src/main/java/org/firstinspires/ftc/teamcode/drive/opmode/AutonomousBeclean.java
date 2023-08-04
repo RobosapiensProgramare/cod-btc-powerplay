@@ -175,10 +175,10 @@ public class AutonomousBeclean extends LinearOpMode {
                         .back(5)
                         .turn(Math.toRadians(90))
                         .addTemporalMarker(() -> {
-                            robot.intake.distCon = pozitiiStack.get(levelCon).second;
-                            robot.intake.setHeight(pozitiiStack.get(levelCon).first);
+//                            robot.intake.distCon = pozitiiStack.get(levelCon).second;
+//                            robot.intake.setHeight(pozitiiStack.get(levelCon).first);
                             robot.intake.desfaCleste();
-                            robot.intake.autoExtend();
+//                            robot.intake.autoExtend();
                         })
                         .waitSeconds(2)
                         .addTemporalMarker(() -> {
@@ -194,7 +194,7 @@ public class AutonomousBeclean extends LinearOpMode {
                         })
                         .waitSeconds(0.25)
                         .addTemporalMarker(() -> {
-                            robot.intake.servoClesteRot.setPosition(0.3);
+//                            robot.intake.servoClesteRot.setPosition(0.3);
                         })
                         .turn(Math.toRadians(-45))
                         .forward(4)
@@ -239,10 +239,10 @@ public class AutonomousBeclean extends LinearOpMode {
                         .back(5)
                         .turn(Math.toRadians(90))
                         .addTemporalMarker(() -> {
-                            robot.intake.distCon = pozitiiStack.get(levelCon).second;
-                            robot.intake.setHeight(pozitiiStack.get(levelCon).first);
+//                            robot.intake.distCon = pozitiiStack.get(levelCon).second;
+//                            robot.intake.setHeight(pozitiiStack.get(levelCon).first);
                             robot.intake.desfaCleste();
-                            robot.intake.autoExtend();
+//                            robot.intake.autoExtend();
                         })
                         .waitSeconds(2)
                         .addTemporalMarker(() -> {
@@ -258,7 +258,7 @@ public class AutonomousBeclean extends LinearOpMode {
                         })
                         .waitSeconds(0.25)
                         .addTemporalMarker(() -> {
-                            robot.intake.servoClesteRot.setPosition(0.3);
+//                            robot.intake.servoClesteRot.setPosition(0.3);
                         })
                         .turn(Math.toRadians(-45))
                         .forward(4)
@@ -301,10 +301,10 @@ public class AutonomousBeclean extends LinearOpMode {
                         .back(5)
                         .turn(Math.toRadians(90))
                         .addTemporalMarker(() -> {
-                            robot.intake.distCon = pozitiiStack.get(levelCon).second;
-                            robot.intake.setHeight(pozitiiStack.get(levelCon).first);
+//                            robot.intake.distCon = pozitiiStack.get(levelCon).second;
+//                            robot.intake.setHeight(pozitiiStack.get(levelCon).first);
                             robot.intake.desfaCleste();
-                            robot.intake.autoExtend();
+//                            robot.intake.autoExtend();
                         })
                         .waitSeconds(2)
                         .addTemporalMarker(() -> {
@@ -320,7 +320,7 @@ public class AutonomousBeclean extends LinearOpMode {
                         })
                         .waitSeconds(0.25)
                         .addTemporalMarker(() -> {
-                            robot.intake.servoClesteRot.setPosition(0.3);
+//                            robot.intake.servoClesteRot.setPosition(0.3);
                         })
                         .turn(Math.toRadians(-45))
                         .forward(4)

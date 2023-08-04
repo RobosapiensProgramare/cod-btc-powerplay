@@ -2,16 +2,12 @@ package org.firstinspires.ftc.teamcode.drive.opmode;
 
 import static java.lang.Math.abs;
 
-import android.util.Pair;
-
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.drive.Robot;
-
-import java.util.ArrayList;
 //import org.firstinspires.ftc.teamcode.drive.subsystems.Odometrie;
 
 @TeleOp(group = "driver")
@@ -20,14 +16,10 @@ public class LinearDriveModeV2 extends LinearOpMode {
     public final static int ZERO = 5, MEDIUM = 700, TALL = 1250;
     public final static double DOWN_MULTIPLIER = 0.7;
     boolean outtakeEncodersDown = false, intakeEncodersDown = false;
-    public boolean hasReached = true, isReadyForTransfer = false, isStart = true;
-
-    public int hDess = 8;
-
+    public boolean hasReached = false;
     public int levelCon = 4;
-
+    boolean upPress = false, downPress = false;
     public double outtakeServoPosition, intakeServoPosition;
-    ArrayList<Pair<Integer, Integer>> pozitiiStack = new ArrayList<>(5);
 
     public double calculateThrottle(float x) {
         int sign = -1;
@@ -35,10 +27,57 @@ public class LinearDriveModeV2 extends LinearOpMode {
         return sign * Math.pow(100 * (abs(x) / 100), 2);
     }
 
-    public void setServosBaza(double pos) {
-        robot.intake.servobaza2.setPosition(pos);
-        robot.intake.servobaza1.setPosition(1 - pos);
+    public boolean checkExtend()
+    {
+        if (robot.intake.senzorDistanta.getDistance(DistanceUnit.CM) <= 30)
+            return true;
+        return false;
     }
+
+    public boolean checkReached() {
+        if (robot.intake.senzorDistanta.getDistance(DistanceUnit.CM) <= 5)
+            return true;
+        return false;
+    }
+
+//    public void extend(int dist) {
+//        if (!checkReached() && dist<100) {
+//            robot.intake.manualLevel(robot.intake.motorGlisieraOriz.getCurrentPosition() - 30);
+//            hasReached = false;
+//            extend(dist+10);
+//        }
+//        else
+//            hasReached = true;
+//    }
+
+    public void faza1() {
+        hasReached = false;
+        switch (levelCon) {
+            case 0:
+                robot.intake.setServoBaza(1);
+                break;
+            case 1:
+                robot.intake.setServoBaza(0.96);
+                break;
+            case 2:
+                robot.intake.setServoBaza(0.92);
+                break;
+            case 3:
+                robot.intake.setServoBaza(0.88);
+                break;
+            case 4:
+                robot.intake.setServoBaza(0.84);
+                break;
+        }
+
+
+//            if (!hasReached) {
+//                extend(0);
+//            }
+
+    }
+
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -46,11 +85,6 @@ public class LinearDriveModeV2 extends LinearOpMode {
         telemetry.update();
 
         robot = new Robot(hardwareMap);
-        pozitiiStack.add(new Pair<>(15, 18));
-        pozitiiStack.add(new Pair<>(17, 18));
-        pozitiiStack.add(new Pair<>(19, 18));
-        pozitiiStack.add(new Pair<>(21, 18));
-        pozitiiStack.add(new Pair<>(23, 17));
 
         while (robot.isInitialize() && opModeIsActive()) {
             idle();
@@ -59,11 +93,10 @@ public class LinearDriveModeV2 extends LinearOpMode {
         telemetry.addData(">", "Initialized");
         telemetry.update();
 
-        robot.intake.intakeToOuttake();
-        sleep(500);
         robot.intake.setServoBaza(0.4);
-        robot.outtake.coboaraCupa();
+        sleep(500);
 
+        robot.outtake.coboaraCupa();
 
         waitForStart();
         if (isStopRequested()) return;
@@ -76,12 +109,36 @@ public class LinearDriveModeV2 extends LinearOpMode {
             if (gamepad1.touchpad) {
                 robot.outtake.setLevel(ZERO, DOWN_MULTIPLIER);
             }
+
+            //TODO copy paste de la triangle
             if (gamepad1.square) {
+                robot.outtake.inchideBat();
+                sleep(200);
+                robot.outtake.setServoCupa(0.45);
+                sleep(200);
                 robot.outtake.setLevel(MEDIUM, DOWN_MULTIPLIER);
+                sleep(1000);
+                robot.outtake.ridicaCupa();
+                sleep(200);
+                robot.outtake.deschideBat();
+                sleep(250);
+                robot.outtake.coboaraCupa();
+                sleep(200);
+                robot.outtake.setLevel(ZERO, DOWN_MULTIPLIER);
             }
 
             if (gamepad1.triangle) {
                 robot.outtake.setLevel(TALL, DOWN_MULTIPLIER);
+                sleep(200);
+                robot.outtake.inchideBat();
+                sleep(200);
+                robot.outtake.ridicaCupa();
+                sleep(850);
+                robot.outtake.deschideBat();
+                sleep(250);
+                robot.outtake.coboaraCupa();
+                sleep(200);
+                robot.outtake.setLevel(ZERO, DOWN_MULTIPLIER);
             }
 
             if (gamepad1.right_bumper) {
@@ -94,9 +151,14 @@ public class LinearDriveModeV2 extends LinearOpMode {
                 robot.outtake.deschideBat();
                 sleep(250);
                 robot.outtake.coboaraCupa();
-                //robot.outtake.setLevel(ZERO, DOWN_MULTIPLIER);
             }
-            //            if (gamepad1.square) robot.outtake.setLevel(TALL, DOWN_MULTIPLIER);
+
+            if (gamepad1.dpad_right)
+                robot.outtake.inchideBat();
+
+            if (gamepad1.dpad_left)
+                robot.outtake.deschideBat();
+
 
             //Daca mor encoderele de la glisiera
             if (gamepad1.left_stick_button && gamepad1.right_stick_button) {
@@ -104,7 +166,8 @@ public class LinearDriveModeV2 extends LinearOpMode {
                 outtakeEncodersDown = true;
             }
 
-            if (outtakeEncodersDown) { /** DACA CRAPA ENCODERELE **/
+            if (outtakeEncodersDown)
+            { /** DACA CRAPA ENCODERELE **/
                 if (gamepad1.left_trigger >= 0.1) {
                     robot.outtake.setPower(gamepad1.left_trigger);
                 } else if (gamepad1.right_trigger >= 0.1) {
@@ -112,7 +175,9 @@ public class LinearDriveModeV2 extends LinearOpMode {
                 } else {
                     robot.outtake.setPower(0);
                 }
-            } else {/** DACA MERG ENCODERELE **/
+            }
+            else
+            {/** DACA MERG ENCODERELE **/
                 if (gamepad1.right_trigger > 0.1) {
                     //if (robot.outtake.getPosition() >= ZERO) {
                     robot.outtake.manualTarget = robot.outtake.motorGlisiera1.getCurrentPosition() + calculateThrottle(gamepad1.right_trigger * 12);
@@ -147,28 +212,32 @@ public class LinearDriveModeV2 extends LinearOpMode {
             }
 
 
-            //servoBaza1 0.7, servoBaza2 0.3
-
 
 
 
             /** INTAKE **/
 
-            if(gamepad2.left_stick_button && gamepad2.right_stick_button){
+            if(gamepad2.left_stick_button && gamepad2.right_stick_button) {
                 robot.intake.setPower(0);
                 intakeEncodersDown = true;
             }
 
-            if(intakeEncodersDown){
+            if(intakeEncodersDown)
+            {
                 if (gamepad2.left_trigger >= 0.1) {
                     robot.intake.setPower(gamepad2.left_trigger);
-                } else if (gamepad2.right_trigger >= 0.1) {
+                }
+                else if (gamepad2.right_trigger >= 0.1)
+                {
                     robot.intake.setPower(-gamepad2.right_trigger);
-                } else {
+                }
+                else
+                {
                     robot.intake.setPower(0);
                 }
             }
-            else{
+            else
+            {
                 if (gamepad2.left_trigger > 0.1) {
                     //if (robot.outtake.getPosition() >= ZERO) {
                     robot.intake.manualTarget = robot.intake.motorGlisieraOriz.getCurrentPosition() + calculateThrottle(gamepad2.left_trigger * 12);
@@ -180,27 +249,78 @@ public class LinearDriveModeV2 extends LinearOpMode {
                     //}
                 }
 
-                if (gamepad2.right_trigger > 0.1) {
-                    // if (robot.outtake.getPosition() < TALL) {
-                    robot.intake.manualTarget = robot.intake.motorGlisieraOriz.getCurrentPosition() - calculateThrottle(gamepad2.right_trigger * 12);
-                    robot.intake.manualTarget--;
-                    if(robot.intake.manualTarget < -800){
-                        robot.intake.manualTarget = -800;
+                if (!checkReached()) {
+                    if (gamepad2.right_trigger > 0.1) {
+                        // if (robot.outtake.getPosition() < TALL) {
+                        robot.intake.manualTarget = robot.intake.motorGlisieraOriz.getCurrentPosition() - calculateThrottle(gamepad2.right_trigger * 12);
+                        robot.intake.manualTarget--;
+                        if (robot.intake.manualTarget < -800) {
+                            robot.intake.manualTarget = -800;
+                        }
+                        robot.intake.manualLevel(robot.intake.manualTarget);
+                        //}
                     }
-                    robot.intake.manualLevel(robot.intake.manualTarget);
-                    //}
                 }
             }
 
-            if(gamepad2.touchpad){
+
+            if(gamepad2.touchpad)
+            {
                 robot.intake.manualLevel(5);
             }
 
-            if (gamepad2.circle) {
-                robot.intake.intakeToOuttake();
-                robot.intake.manualLevel(-250);
-                isReadyForTransfer = true;
+
+            if(gamepad2.dpad_up && upPress == false && levelCon < 4)
+            {
+                levelCon++;
+                upPress =true;
             }
+            if(!gamepad2.dpad_up) upPress = false;
+
+            if(gamepad2.dpad_down && downPress ==false && levelCon > 0)
+            {
+                levelCon--;
+                downPress =true;
+            }
+            if(!gamepad2.dpad_down) downPress = false;
+
+            if(gamepad2.dpad_right)
+            {
+                intakeServoPosition = intakeServoPosition + 0.05;
+                robot.intake.setServoBaza(intakeServoPosition);
+            }
+
+            if(gamepad2.dpad_left)
+            {
+                intakeServoPosition = intakeServoPosition - 0.05;
+                robot.intake.setServoBaza(intakeServoPosition);
+            }
+
+
+
+            if(gamepad2.cross) faza1();
+
+            if (gamepad2.circle) {
+                robot.intake.strangeCleste();
+                sleep(200);
+                robot.intake.intakeToOuttake();
+                robot.outtake.coboaraCupa();
+                robot.intake.manualLevel(-500);
+                sleep(1030);
+                robot.intake.desfaCleste();
+                sleep(800);
+                robot.intake.setServoBaza(0.4);
+                robot.intake.manualLevel(0);
+            }
+
+            if(gamepad2.square){
+                robot.intake.motorGlisieraOriz.setPower(0);
+                hasReached = true;
+            }
+
+
+
+
 
             if (gamepad2.right_bumper) {
                 robot.intake.strangeCleste();
@@ -208,23 +328,21 @@ public class LinearDriveModeV2 extends LinearOpMode {
 
             if(gamepad2.left_bumper){
                 robot.intake.desfaCleste();
-                if(isReadyForTransfer)
-                {
-                    sleep(250);
-                    robot.intake.servoClesteRot.setPosition(0.3);
-                }
             }
 
-            if (gamepad2.triangle) {
-                robot.intake.distCon = pozitiiStack.get(levelCon).second;
-                robot.intake.setHeight(pozitiiStack.get(levelCon).first);
-                robot.intake.desfaCleste();
-                isReadyForTransfer = false;
-            }
 
-            if(gamepad2.cross){
-                hasReached = false;
-            }
+
+
+
+
+
+
+
+
+
+
+
+
 
 //            if(gamepad2.dpad_right){
 //                robot.intake.servoclestein.setPosition(0.7);
@@ -241,49 +359,22 @@ public class LinearDriveModeV2 extends LinearOpMode {
 //                isReadyForTransfer = true;
 //            }
 
-            if(!hasReached){
-                if (robot.intake.senzorDistanta.getDistance(DistanceUnit.CM) >= 5) {
-                    robot.intake.manualTarget = robot.intake.motorGlisieraOriz.getCurrentPosition() - calculateThrottle(12);
-                    robot.intake.manualTarget--;
-                    if(robot.intake.manualTarget < -800){
-                        robot.intake.manualTarget = -800;
-                    }
-                    robot.intake.manualLevel(robot.intake.manualTarget);
-                }else {
-                    robot.intake.manualLevel(robot.intake.motorGlisieraOriz.getCurrentPosition());
-                    hasReached = true;
-                }
-            }
-
-            if(gamepad2.square){
-                robot.intake.motorGlisieraOriz.setPower(0);
-                hasReached = true;
-            }
-
-            if(gamepad2.dpad_left)
-            {
-                intakeServoPosition = intakeServoPosition + 0.05;
-                robot.intake.servoClesteRot.setPosition(intakeServoPosition);
-            }
-            if(gamepad2.dpad_right)
-            {
-                intakeServoPosition = intakeServoPosition - 0.05;
-                robot.intake.servoClesteRot.setPosition(intakeServoPosition);
-            }
+//            if(!hasReached){
+//                if (robot.intake.senzorDistanta.getDistance(DistanceUnit.CM) >= 5) {
+//                    robot.intake.manualTarget = robot.intake.motorGlisieraOriz.getCurrentPosition() - calculateThrottle(12);
+//                    robot.intake.manualTarget--;
+//                    if(robot.intake.manualTarget < -800){
+//                        robot.intake.manualTarget = -800;
+//                    }
+//                    robot.intake.manualLevel(robot.intake.manualTarget);
+//                }else {
+//                    robot.intake.manualLevel(robot.intake.motorGlisieraOriz.getCurrentPosition());
+//                    hasReached = true;
+//                }
+//            }
 
 
 
-
-            if (gamepad2.dpad_up) {
-                levelCon++;
-                if (levelCon > 4) levelCon = 4;
-                sleep(100);
-            }
-            if (gamepad2.dpad_down) {
-                levelCon--;
-                if (levelCon < 0) levelCon = 0;
-                sleep(100);
-            }
 
             //con5 - hdes - 21 cand apuca conu, 25 ca sa se ridice si distcon - 16,
             //con4 - hdes - 19 cand apuca conu, 25 ca sa se ridice si distcon - 16,
@@ -306,15 +397,9 @@ public class LinearDriveModeV2 extends LinearOpMode {
             telemetry.addData("MOTORglisiera1Targe ", robot.outtake.motorGlisiera2.getTargetPosition());
             telemetry.addData("getposition", robot.outtake.getPosition());
             telemetry.addData("servobazapos: ", robot.intake.servobaza1.getPosition());
-            telemetry.addData("servoincheieturapos: ", robot.intake.servoClesteRot.getPosition());
-            telemetry.addData("servorotpos: ", robot.intake.servoincheietura.getPosition());
             telemetry.addData("servoCupaPos:", robot.outtake.getServoPos());
-            telemetry.addData("Hdess: ", hDess);
-            telemetry.addData("FirstAng: ", robot.intake.FirstAng);
-            telemetry.addData("MidAng:  ", robot.intake.MidAng);
-            telemetry.addData("FinalAng: ", robot.intake.FinalAng);
-            telemetry.addData("DistCon: ", robot.intake.distCon);
-            telemetry.addData("senzorDistantaCM: ", robot.intake.senzorDistanta.getDistance(DistanceUnit.CM));
+            telemetry.addData("senzordistanta:  ", robot.intake.senzorDistanta.getDistance(DistanceUnit.CM));
+//            telemetry.addData("senzorDistantaCM: ", robot.intake.senzorDistanta.getDistance(DistanceUnit.CM));
 
             int ceva = 1;
             ceva++;

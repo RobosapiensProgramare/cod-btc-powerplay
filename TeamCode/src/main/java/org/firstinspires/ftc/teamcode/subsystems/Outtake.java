@@ -35,19 +35,25 @@ public class Outtake {
 
     //SERVOURI CUPA:
 
+    private void setMirroredServos(Servo servo1, Servo servo2, double pos) {
+        servo1.setPosition(pos);
+        servo2.setPosition(1 - pos);
+    }
+
+    public void setServoCupa(double pos) {
+        setMirroredServos(servoCupa1, servoCupa2, pos);
+    }
+
     public void ridicaCupa(){
-        servoCupa1.setPosition(0.9);
-        servoCupa2.setPosition(1-0.9);
+        setMirroredServos(servoCupa1, servoCupa2, 0.9);
     }
 
     public void coboaraCupa(){
-        servoCupa1.setPosition(0.3);
-        servoCupa2.setPosition(1-0.3);
+        setMirroredServos(servoCupa1, servoCupa2, 0.23);
     }
 
     public void setCupa(double pos){
-        servoCupa1.setPosition(pos);
-        servoCupa2.setPosition(1 - pos);
+        setMirroredServos(servoCupa1, servoCupa2, pos);
     }
 
     public void inchideBat(){
@@ -56,14 +62,6 @@ public class Outtake {
 
     public void deschideBat(){
         servoBat.setPosition(0.5);
-    }
-
-    public void deschideCupa(){
-        servoBat.setPosition(1);
-    }
-
-    public void inchideCupa(){
-        servoBat.setPosition(0);
     }
 
     //MOTOARE GLISIERA:
