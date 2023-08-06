@@ -16,7 +16,6 @@ public class LinearDriveModeV2 extends LinearOpMode {
     public final static int ZERO = 5, MEDIUM = 700, TALL = 1250;
     public final static double DOWN_MULTIPLIER = 0.7;
     boolean outtakeEncodersDown = false, intakeEncodersDown = false;
-    public boolean hasReached = false;
     public int levelCon = 4;
     boolean upPress = false, downPress = false;
     public double outtakeServoPosition, intakeServoPosition;
@@ -26,6 +25,9 @@ public class LinearDriveModeV2 extends LinearOpMode {
         if (x > 0) sign = 1;
         return sign * Math.pow(100 * (abs(x) / 100), 2);
     }
+
+    public static RunnableTask horizontal;
+    public static RunnableTask vertical;
 
     public boolean checkExtend()
     {
@@ -51,7 +53,6 @@ public class LinearDriveModeV2 extends LinearOpMode {
 //    }
 
     public void faza1() {
-        hasReached = false;
         switch (levelCon) {
             case 0:
                 robot.intake.setServoBaza(1);
@@ -69,11 +70,6 @@ public class LinearDriveModeV2 extends LinearOpMode {
                 robot.intake.setServoBaza(0.84);
                 break;
         }
-
-
-//            if (!hasReached) {
-//                extend(0);
-//            }
 
     }
 
@@ -93,12 +89,14 @@ public class LinearDriveModeV2 extends LinearOpMode {
         telemetry.addData(">", "Initialized");
         telemetry.update();
 
-        robot.intake.setServoBaza(0.4);
-        sleep(500);
 
-        robot.outtake.coboaraCupa();
 
         waitForStart();
+
+        robot.intake.setServoBaza(0.4);
+        sleep(500);
+        robot.outtake.coboaraCupa();
+
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
@@ -112,33 +110,41 @@ public class LinearDriveModeV2 extends LinearOpMode {
 
             //TODO copy paste de la triangle
             if (gamepad1.square) {
-                robot.outtake.inchideBat();
-                sleep(200);
-                robot.outtake.setServoCupa(0.45);
-                sleep(200);
-                robot.outtake.setLevel(MEDIUM, DOWN_MULTIPLIER);
-                sleep(1000);
-                robot.outtake.ridicaCupa();
-                sleep(200);
-                robot.outtake.deschideBat();
-                sleep(250);
-                robot.outtake.coboaraCupa();
-                sleep(200);
-                robot.outtake.setLevel(ZERO, DOWN_MULTIPLIER);
+//                robot.outtake.inchideBat();
+//                sleep(200);
+//                robot.outtake.setServoCupa(0.45);
+//                sleep(200);
+//                robot.outtake.setLevel(MEDIUM, DOWN_MULTIPLIER);
+//                sleep(1000);
+//                robot.outtake.ridicaCupa();
+//                sleep(200);
+//                robot.outtake.deschideBat();
+//                sleep(250);
+//                robot.outtake.coboaraCupa();
+//                sleep(200);
+//                robot.outtake.setLevel(ZERO, DOWN_MULTIPLIER);
+                if (vertical == null || !vertical.isAlive()) {
+                    vertical = new RunnableTask(2, robot.intake, robot.outtake, "vertical");
+                    vertical.start();
+                }
             }
 
             if (gamepad1.triangle) {
-                robot.outtake.setLevel(TALL, DOWN_MULTIPLIER);
-                sleep(200);
-                robot.outtake.inchideBat();
-                sleep(200);
-                robot.outtake.ridicaCupa();
-                sleep(850);
-                robot.outtake.deschideBat();
-                sleep(250);
-                robot.outtake.coboaraCupa();
-                sleep(200);
-                robot.outtake.setLevel(ZERO, DOWN_MULTIPLIER);
+//                robot.outtake.setLevel(TALL, DOWN_MULTIPLIER);
+//                sleep(200);
+//                robot.outtake.inchideBat();
+//                sleep(200);
+//                robot.outtake.ridicaCupa();
+//                sleep(850);
+//                robot.outtake.deschideBat();
+//                sleep(250);
+//                robot.outtake.coboaraCupa();
+//                sleep(200);
+//                robot.outtake.setLevel(ZERO, DOWN_MULTIPLIER);
+                if (vertical == null || !vertical.isAlive()) {
+                    vertical = new RunnableTask(1, robot.intake, robot.outtake, "vertical");
+                    vertical.start();
+                }
             }
 
             if (gamepad1.right_bumper) {
@@ -148,9 +154,13 @@ public class LinearDriveModeV2 extends LinearOpMode {
             }
 
             if (gamepad1.left_bumper) {
-                robot.outtake.deschideBat();
-                sleep(250);
-                robot.outtake.coboaraCupa();
+//                robot.outtake.deschideBat();
+//                sleep(250);
+//                robot.outtake.coboaraCupa();
+                if (vertical == null || !vertical.isAlive()) {
+                    vertical = new RunnableTask(3, robot.intake, robot.outtake, "vertical");
+                    vertical.start();
+                }
             }
 
             if (gamepad1.dpad_right)
@@ -298,24 +308,37 @@ public class LinearDriveModeV2 extends LinearOpMode {
 
 
 
-            if(gamepad2.cross) faza1();
+//            if(gamepad2.cross) faza1();
+            if(gamepad2.cross) {
+                if (horizontal == null || !horizontal.isAlive()) {
+                    horizontal = new RunnableTask(1, robot.intake, robot.outtake, "horizontal");
+                    horizontal.start();
+                }
+            }
+
 
             if (gamepad2.circle) {
-                robot.intake.strangeCleste();
-                sleep(200);
-                robot.intake.intakeToOuttake();
-                robot.outtake.coboaraCupa();
-                robot.intake.manualLevel(-500);
-                sleep(1030);
-                robot.intake.desfaCleste();
-                sleep(800);
-                robot.intake.setServoBaza(0.4);
-                robot.intake.manualLevel(0);
+//                robot.intake.strangeCleste();
+//                sleep(200);
+//                robot.intake.intakeToOuttake();
+//                robot.outtake.coboaraCupa();
+//                robot.intake.manualLevel(-500);
+//                sleep(1030);
+//                robot.intake.desfaCleste();
+//                sleep(800);
+//                robot.intake.setServoBaza(0.4);
+//                robot.intake.manualLevel(0);
+                if (horizontal == null || !horizontal.isAlive()) {
+                    horizontal = new RunnableTask(2, robot.intake, robot.outtake, "horizontal");
+                    horizontal.start();
+                }
             }
+
+
+
 
             if(gamepad2.square){
                 robot.intake.motorGlisieraOriz.setPower(0);
-                hasReached = true;
             }
 
 
@@ -389,7 +412,6 @@ public class LinearDriveModeV2 extends LinearOpMode {
             /** TELEMETRY **/
 
             telemetry.addData("levelCon: ", levelCon + 1);
-            telemetry.addData("?hasreached: ", hasReached);
             telemetry.addData("MOTORORIZTICKS: ", robot.intake.motorGlisieraOriz.getCurrentPosition());
             telemetry.addData("MOTORORIZTARGET: ", robot.intake.motorGlisieraOriz.getCurrentPosition());
             telemetry.addData("MOTORglisiera2 ", robot.outtake.motorGlisiera2.getCurrentPosition());

@@ -39,7 +39,7 @@ public class Intake {
         servobaza1 = hardwareMap.servo.get("servoBaza1");
         servobaza2 = hardwareMap.servo.get("servoBaza2");
         servocleste = hardwareMap.servo.get("servoCleste");
-       senzorDistanta = hardwareMap.get(DistanceSensor.class, "senzorDistanta");
+        senzorDistanta = hardwareMap.get(DistanceSensor.class, "senzorDistanta");
 
         //Motor initialization
         motorGlisieraOriz.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
