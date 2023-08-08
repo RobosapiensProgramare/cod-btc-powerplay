@@ -18,11 +18,14 @@ public class RunnableTask implements Runnable{
     private Intake intake;
     private Outtake outtake;
 
-    RunnableTask(int action, Intake intake, Outtake outtake, String type) {
+    private int pos;
+
+    RunnableTask(int action, Intake intake, Outtake outtake, String type, int pos) {
         this.action = action;
         this.intake = intake;
         this.outtake = outtake;
         this.type = type;
+        this.pos = pos;
     }
 
     public boolean isAlive() {
@@ -32,15 +35,15 @@ public class RunnableTask implements Runnable{
     public void raiseToMedium() {
         try {
             outtake.inchideBat();
-            sleep(200);
+            sleep(150);
             outtake.deschideBat();
-            sleep(200);
-            outtake.inchideBat();
-            sleep(200);
-            outtake.deschideBat();
-            sleep(200);
+            sleep(150);
             outtake.setLevel(MEDIUM, DOWN_MULTIPLIER);
-            sleep(200);
+            sleep(150);
+            outtake.inchideBat();
+            sleep(150);
+            outtake.deschideBat();
+            sleep(150);
             outtake.inchideBat();
             sleep(200);
             outtake.ridicaCupa();
@@ -52,15 +55,15 @@ public class RunnableTask implements Runnable{
     public void raiseToHigh() {
         try {
             outtake.inchideBat();
-            sleep(200);
+            sleep(150);
             outtake.deschideBat();
-            sleep(200);
-            outtake.inchideBat();
-            sleep(200);
-            outtake.deschideBat();
-            sleep(200);
+            sleep(150);
             outtake.setLevel(TALL, DOWN_MULTIPLIER);
-            sleep(200);
+            sleep(150);
+            outtake.inchideBat();
+            sleep(150);
+            outtake.deschideBat();
+            sleep(150);
             outtake.inchideBat();
             sleep(200);
             outtake.ridicaCupa();
@@ -81,8 +84,24 @@ public class RunnableTask implements Runnable{
 
         }
     }
-    public void grabCone() {
-        intake.setServoBaza(1);
+    public void grabCone(int pos) {
+        switch (pos) {
+            case 0:
+                intake.setServoBaza(1);
+                break;
+            case 1:
+                intake.setServoBaza(0.96);
+                break;
+            case 2:
+                intake.setServoBaza(0.92);
+                break;
+            case 3:
+                intake.setServoBaza(0.88);
+                break;
+            case 4:
+                intake.setServoBaza(0.84);
+                break;
+        }
     }
 
     public void intakeToOuttake() {
@@ -106,7 +125,7 @@ public class RunnableTask implements Runnable{
         if (type == "horizontal") {
             switch (action) {
                 case 1:
-                    grabCone();
+                    grabCone(pos);
                     break;
                 case 2:
                     intakeToOuttake();

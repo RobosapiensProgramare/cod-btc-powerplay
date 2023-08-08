@@ -29,6 +29,8 @@
 
 package org.firstinspires.ftc.teamcode.drive.opmode;
 
+import static java.lang.Thread.sleep;
+
 import android.util.Pair;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -37,6 +39,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.drive.Robot;
 import org.firstinspires.ftc.teamcode.drive.visualrecog.AprilTagDetectionPipeline;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
@@ -90,26 +93,31 @@ public class AutonomousBeclean extends LinearOpMode {
     int MIDDLE = 2;
     int RIGHT = 3;
 
+    int pos;
+
     public AprilTagDetection tagOfInterest = null;
     private final int MAX_MILISECONDS = 1500;
 
     ArrayList<Pair<Integer, Integer>> pozitiiStack = new ArrayList<>(5);
     int levelCon = 4;
 
-    final static int ZERO = 5, MEDIUM = 700, TALL = 1250;
+    final static int ZERO = 5, MEDIUM = 650, TALL = 1200;
     final static double DOWN_MULTIPLIER = 0.7;
+
+    public static RunnableTask horizontal;
+    public static RunnableTask vertical;
+
+    public boolean checkReached() {
+        if (robot.intake.senzorDistanta.getDistance(DistanceUnit.CM) <= 5)
+            return true;
+        return false;
+    }
 
     @Override
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
         robot = new Robot(hardwareMap);
-
-        pozitiiStack.add(new Pair<>(15, 18));
-        pozitiiStack.add(new Pair<>(17, 18));
-        pozitiiStack.add(new Pair<>(19, 18));
-        pozitiiStack.add(new Pair<>(21, 18));
-        pozitiiStack.add(new Pair<>(23, 17));
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Camera"), cameraMonitorViewId);
@@ -134,8 +142,8 @@ public class AutonomousBeclean extends LinearOpMode {
          * The INIT-loop:
          * This REPLACES waitForStart!
          */
-        FtcDashboard.getInstance().startCameraStream(camera, 0);
 
+        FtcDashboard.getInstance().startCameraStream(camera, 0);
         while (!isStarted() && !isStopRequested()) {
             ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
             if (currentDetections.size() != 0) {
@@ -164,62 +172,103 @@ public class AutonomousBeclean extends LinearOpMode {
                 Pose2d start = new Pose2d(35, -60, Math.toRadians(90));
                 robot.drive.setPoseEstimate(start);
                 TrajectorySequence myTrajectory1 = robot.drive.trajectorySequenceBuilder(start)
-                        .forward(3)
-                        .addTemporalMarker(() -> {
-                            robot.intake.intakeToOuttake();
-                            sleep(500);
-                            robot.intake.setServoBaza(0.4);
-                            robot.outtake.coboaraCupa();
-                        })
                         .forward(50)
-                        .back(5)
-                        .turn(Math.toRadians(90))
+                        .turn(Math.toRadians(-42))
+                        .forward(7)
                         .addTemporalMarker(() -> {
-//                            robot.intake.distCon = pozitiiStack.get(levelCon).second;
-//                            robot.intake.setHeight(pozitiiStack.get(levelCon).first);
-                            robot.intake.desfaCleste();
-//                            robot.intake.autoExtend();
-                        })
-                        .waitSeconds(2)
-                        .addTemporalMarker(() -> {
-                            robot.intake.strangeCleste();
-                        })
-                        .waitSeconds(0.2)
-                        .addTemporalMarker(() -> {
-                          robot.intake.intakeToOuttake();
-                        })
-                        .waitSeconds(0.4)
-                        .addTemporalMarker(() -> {
-                            robot.intake.desfaCleste();
-                        })
-                        .waitSeconds(0.25)
-                        .addTemporalMarker(() -> {
-//                            robot.intake.servoClesteRot.setPosition(0.3);
-                        })
-                        .turn(Math.toRadians(-45))
-                        .forward(4)
-                        .addTemporalMarker(() -> {
-                            robot.outtake.setLevel(TALL, DOWN_MULTIPLIER);
+                            robot.intake.setServoBaza(0.4);
+                            if (vertical == null || !vertical.isAlive()) {
+                                vertical = new RunnableTask(1, robot.intake, robot.outtake, "vertical", levelCon);
+                                vertical.start();
+                            }
+                            sleep(200);
                         })
                         .addTemporalMarker(() -> {
-                          robot.outtake.ridicaCupa();
+                            if (vertical == null || !vertical.isAlive()) {
+                                vertical = new RunnableTask(3, robot.intake, robot.outtake, "vertical", levelCon);
+                                vertical.start();
+                            }
                         })
-                        .waitSeconds(0.2)
-                        .addTemporalMarker(() -> {
-                          robot.outtake.coboaraCupa();
-                        })
-                        .waitSeconds(0.1)
-                        .addTemporalMarker(() -> {
-                          robot.outtake.setLevel(ZERO, DOWN_MULTIPLIER);
-                        })
-                        .back(4)
-                        .turn(Math.toRadians(45))
-                        .addTemporalMarker(() -> {
-                            robot.intake.intakeToOuttake();
-                        })
+
+
+
+                        //                            robot.intake.outtakeToIntake();
+//                            robot.intake.desfaCleste();
+//                            while (!checkReached()) {
+//                                robot.intake.manualTarget = robot.intake.motorGlisieraOriz.getCurrentPosition() - 20;
+//                                if (robot.intake.manualTarget < -800) {
+//                                    robot.intake.manualTarget = -800;
+//                                }
+//                                robot.intake.manualLevel(robot.intake.manualTarget);
+//
+//                            }
+//                            sleep(500);
+//                            if (horizontal == null || !horizontal.isAlive()) {
+//                                horizontal = new RunnableTask(2, robot.intake, robot.outtake, "horizontal");
+//                                horizontal.start();
+//                            }
+//                        })
+
+
+
+//                        .addTemporalMarker(() -> {
+//                            robot.intake.intakeToOuttake();
+//                            sleep(500);
+//                            robot.intake.setServoBaza(0.4);
+//                            robot.outtake.coboaraCupa();
+//                        })
+//                        .forward(50)
+//                        .back(5)
+//                        .turn(Math.toRadians(-90))
+//                        .addTemporalMarker(() -> {
+////                            robot.intake.distCon = pozitiiStack.get(levelCon).second;
+////                            robot.intake.setHeight(pozitiiStack.get(levelCon).first);
+//                            robot.intake.desfaCleste();
+////                            robot.intake.autoExtend();
+//                        })
+//                        .waitSeconds(2)
+//                        .addTemporalMarker(() -> {
+//                            robot.intake.strangeCleste();
+//                        })
+//                        .waitSeconds(0.2)
+//                        .addTemporalMarker(() -> {
+//                          robot.intake.intakeToOuttake();
+//                        })
+//                        .waitSeconds(0.4)
+//                        .addTemporalMarker(() -> {
+//                            robot.intake.desfaCleste();
+//                        })
+//                        .waitSeconds(0.25)
+//                        .addTemporalMarker(() -> {
+////                            robot.intake.servoClesteRot.setPosition(0.3);
+//                        })
 //                        .turn(Math.toRadians(-45))
 //                        .forward(4)
+//                        .addTemporalMarker(() -> {
+//                            robot.outtake.setLevel(TALL, DOWN_MULTIPLIER);
+//                        })
+//                        .addTemporalMarker(() -> {
+//                          robot.outtake.ridicaCupa();
+//                        })
+//                        .waitSeconds(0.2)
+//                        .addTemporalMarker(() -> {
+//                          robot.outtake.coboaraCupa();
+//                        })
+//                        .waitSeconds(0.1)
+//                        .addTemporalMarker(() -> {
+//                          robot.outtake.setLevel(ZERO, DOWN_MULTIPLIER);
+//                        })
 //                        .back(4)
+//                        .turn(Math.toRadians(45))
+//                        .addTemporalMarker(() -> {
+//                            robot.intake.intakeToOuttake();
+//                        })
+////                        .turn(Math.toRadians(-45))
+////                        .forward(4)
+////                        .back(4)
+
+
+
                         .waitSeconds(45)
                         .build();
                 robot.drive.followTrajectorySequence(myTrajectory1);

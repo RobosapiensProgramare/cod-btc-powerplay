@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.drive.Robot;
 @TeleOp(group = "driver")
 public class LinearDriveModeV2 extends LinearOpMode {
     private Robot robot = null;
-    public final static int ZERO = 5, MEDIUM = 700, TALL = 1250;
+    public final static int ZERO = 5, MEDIUM = 650, TALL = 1200;
     public final static double DOWN_MULTIPLIER = 0.7;
     boolean outtakeEncodersDown = false, intakeEncodersDown = false;
     public int levelCon = 4;
@@ -107,42 +107,16 @@ public class LinearDriveModeV2 extends LinearOpMode {
             if (gamepad1.touchpad) {
                 robot.outtake.setLevel(ZERO, DOWN_MULTIPLIER);
             }
-
-            //TODO copy paste de la triangle
             if (gamepad1.square) {
-//                robot.outtake.inchideBat();
-//                sleep(200);
-//                robot.outtake.setServoCupa(0.45);
-//                sleep(200);
-//                robot.outtake.setLevel(MEDIUM, DOWN_MULTIPLIER);
-//                sleep(1000);
-//                robot.outtake.ridicaCupa();
-//                sleep(200);
-//                robot.outtake.deschideBat();
-//                sleep(250);
-//                robot.outtake.coboaraCupa();
-//                sleep(200);
-//                robot.outtake.setLevel(ZERO, DOWN_MULTIPLIER);
                 if (vertical == null || !vertical.isAlive()) {
-                    vertical = new RunnableTask(2, robot.intake, robot.outtake, "vertical");
+                    vertical = new RunnableTask(2, robot.intake, robot.outtake, "vertical", levelCon);
                     vertical.start();
                 }
             }
 
             if (gamepad1.triangle) {
-//                robot.outtake.setLevel(TALL, DOWN_MULTIPLIER);
-//                sleep(200);
-//                robot.outtake.inchideBat();
-//                sleep(200);
-//                robot.outtake.ridicaCupa();
-//                sleep(850);
-//                robot.outtake.deschideBat();
-//                sleep(250);
-//                robot.outtake.coboaraCupa();
-//                sleep(200);
-//                robot.outtake.setLevel(ZERO, DOWN_MULTIPLIER);
                 if (vertical == null || !vertical.isAlive()) {
-                    vertical = new RunnableTask(1, robot.intake, robot.outtake, "vertical");
+                    vertical = new RunnableTask(1, robot.intake, robot.outtake, "vertical", levelCon);
                     vertical.start();
                 }
             }
@@ -154,11 +128,8 @@ public class LinearDriveModeV2 extends LinearOpMode {
             }
 
             if (gamepad1.left_bumper) {
-//                robot.outtake.deschideBat();
-//                sleep(250);
-//                robot.outtake.coboaraCupa();
                 if (vertical == null || !vertical.isAlive()) {
-                    vertical = new RunnableTask(3, robot.intake, robot.outtake, "vertical");
+                    vertical = new RunnableTask(3, robot.intake, robot.outtake, "vertical", levelCon);
                     vertical.start();
                 }
             }
@@ -307,29 +278,17 @@ public class LinearDriveModeV2 extends LinearOpMode {
             }
 
 
-
-//            if(gamepad2.cross) faza1();
             if(gamepad2.cross) {
                 if (horizontal == null || !horizontal.isAlive()) {
-                    horizontal = new RunnableTask(1, robot.intake, robot.outtake, "horizontal");
+                    horizontal = new RunnableTask(1, robot.intake, robot.outtake, "horizontal", levelCon);
                     horizontal.start();
                 }
             }
 
 
             if (gamepad2.circle) {
-//                robot.intake.strangeCleste();
-//                sleep(200);
-//                robot.intake.intakeToOuttake();
-//                robot.outtake.coboaraCupa();
-//                robot.intake.manualLevel(-500);
-//                sleep(1030);
-//                robot.intake.desfaCleste();
-//                sleep(800);
-//                robot.intake.setServoBaza(0.4);
-//                robot.intake.manualLevel(0);
                 if (horizontal == null || !horizontal.isAlive()) {
-                    horizontal = new RunnableTask(2, robot.intake, robot.outtake, "horizontal");
+                    horizontal = new RunnableTask(2, robot.intake, robot.outtake, "horizontal", levelCon);
                     horizontal.start();
                 }
             }
